@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import SinglePost from "../components/SinglePost";
+import { useParams } from "react-router-dom";
 
 const apiPost = `http://localhost:1111/post`;
 
-export default function Blog() {
+export default function PostShow() {
+    const { slug } = useParamsarams();
+    const [post, setPost] = useState([]);
 
-    const [posts, setPosts] = useState([]);
-    const [postShow, setPostShow] = useState(null);
-
-    function getAllPosts() {
-        fetch(apiPost)
+    function getPost() {
+        fetch(apiPost + slug)
             .then((res) => {
                 if (!res.ok) {
                     throw new Error(`Errore nella richiesta: ${res.status} ${res.statusText}`);
@@ -18,25 +18,17 @@ export default function Blog() {
             })
             .then((data) => {
                 console.log("Dati ricevuti:", data.data);
-                setPosts(data.data);
+                setPost(data.data);
             })
             .catch((error) => console.error("Errore nella richiesta:", error));
     }
 
-    useEffect(getAllPosts, []); //onMounted
+    useEffect(getPost, []); //onMounted
 
-    function handleMoreInfoClick(id) {
-        setPostShow(post);
-    }
 
     return (
         <>
-            {posts.map((post, i) => {
-                return (
-
-                    <SinglePost key={i} post={post} onShow={() => { handleMoreInfoClick(post.id); }} />
-                );
-            })}
+            <SinglePost post={post} />
         </>
     );
 }
