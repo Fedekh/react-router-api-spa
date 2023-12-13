@@ -5,17 +5,20 @@ const initialState = {
     image: "",
     content: "",
     published: true,
-    category: null,
+    category: 'weewwewe',
     tags: []
 }
 const apiTags = 'http://localhost:1111/tag/'
-const apiPost ='http://localhost:1111/post'
+const apiCategorie = 'http://localhost:1111/category/'
+const apiPost = 'http://localhost:1111/post'
 
 export default function OffCanvas({ isVisible, toggleOffcanvas, text }) {
     useEffect(getAllTags, []); //onMounted
+    useEffect(getAllCategories, []); //onMounted
 
     const [formData, setFormData] = useState(initialState)
     const [tags, setTags] = useState([])
+    const [categories, setCategories] = useState([])
 
 
     function getAllTags() {
@@ -29,6 +32,23 @@ export default function OffCanvas({ isVisible, toggleOffcanvas, text }) {
             .then((data) => {
                 console.log("%cDati totali ricevuti", "color: red; font-size: 16px;", data);
                 setTags(data.data);
+            })
+            .catch((error) => {
+                console.error("Errore nella richiesta:", error);
+            })
+    }
+
+    function getAllCategories() {
+        fetch(apiCategorie)
+            .then((resp) => {
+                if (!resp.ok) {
+                    throw new Error(`Errore nella richiesta: ${resp.status} ${resp.statusText}`);
+                }
+                return resp.json();
+            })
+            .then((data) => {
+                console.log("%cDati totali ricevuti", "color: red; font-size: 16px;", data);
+                setCategories(data.data);
             })
             .catch((error) => {
                 console.error("Errore nella richiesta:", error);
@@ -173,8 +193,14 @@ export default function OffCanvas({ isVisible, toggleOffcanvas, text }) {
                                 id="categories"
                                 name="categoryId"
                                 className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                                onChange={(e) => handleChange(e, "category")}
                             >
                                 <option value="">Select a category</option>
+                                {categories.map((categoria) => (
+                                    <option key={categoria.id} value={categoria.id}>
+                                        {categoria.title}
+                                    </option>
+                                ))}
                             </select>
                         </div>
 
