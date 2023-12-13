@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 
 export default function Header() {
     return (
@@ -42,13 +42,13 @@ export default function Header() {
                     </div>
                     <ul className="flex flex-col p-4 md:p-0 mt-4 font-medium border rounded-lg md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
                         <li>
-                            <Link to='/'>Homepage</Link>
+                            <NavLink to='/'>Homepage</NavLink>
                         </li>
                         <li>
-                            <Link to='/blog'>Blog</Link>
+                            <NavLink to='/blog'>Blog</NavLink>
                         </li>
                         <li>
-                            <Link to='/contact'>Contacts</Link>
+                            <NavLink to='/contact'>Contacts</NavLink>
                         </li>
                     </ul>
 

@@ -1,42 +1,70 @@
 import { useEffect, useState } from "react";
 import SinglePost from "../components/SinglePost";
+import Loading from "../components/Loading";
+import OffCanvas from "../components/OffCanvas";
 
 const apiPost = `http://localhost:1111/post`;
 
 export default function Blog() {
+    useEffect(getAllPosts, []); //onMounted
 
     const [posts, setPosts] = useState([]);
     const [postShow, setPostShow] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [isOffcanvasVisible, setOffcanvasVisible] = useState(false);
+
 
     function getAllPosts() {
+        setLoading(true);
         fetch(apiPost)
-            .then((res) => {
-                if (!res.ok) {
-                    throw new Error(`Errore nella richiesta: ${res.status} ${res.statusText}`);
+            .then((resp) => {
+                if (!resp.ok) {
+                    throw new Error(`Errore nella richiesta: ${resp.status} ${resp.statusText}`);
                 }
-                return res.json();
+                return resp.json();
             })
             .then((data) => {
-                console.log("Dati ricevuti:", data.data);
+                console.log("%cDati totali ricevuti", "color: red; font-size: 16px;", data);
                 setPosts(data.data);
             })
-            .catch((error) => console.error("Errore nella richiesta:", error));
+            .catch((error) => {
+                console.error("Errore nella richiesta:", error);
+            })
+            .finally(() => {
+                setLoading(false);
+            });
     }
-
-    useEffect(getAllPosts, []); //onMounted
-
-    function handleMoreInfoClick(id) {
+    
+    function showInfo(post) {
+        setLoading(true)
         setPostShow(post);
+        setLoading(false)
     }
+
 
     return (
         <>
-            {posts.map((post, i) => {
-                return (
+            {loading ? <Loading /> : (
+                <div>
+                    <div className="flex flex-col gap-2">
+                        {posts.map((post, i) => (
+                            <SinglePost
+                                key={post.id}
+                                post={post}
+                                onShow={() => { showInfo(post); }}
+                            />
+                        ))}
+                    </div>
 
-                    <SinglePost key={i} post={post} onShow={() => { handleMoreInfoClick(post.id); }} />
-                );
-            })}
+                    <div>
+                        <OffCanvas
+                            text={isOffcanvasVisible ? 'Chiudi pannello' : 'Crea nuovo Post'}
+                            isVisible={isOffcanvasVisible}
+                            toggleOffcanvas={() => { setOffcanvasVisible(!isOffcanvasVisible) }}
+                        />
+                    </div>
+                </div>
+            )}
         </>
     );
 }

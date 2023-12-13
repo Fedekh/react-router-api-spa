@@ -16,7 +16,7 @@ export default function App() {
           <Route element={<DefaultLayout />}>
             <Route index element={<Homepage />} />
             <Route path='/blog' element={<Blog />} />
-            <Route path='/blog/:id' element={<PostShow />} />
+            <Route path='/blog/:slug' element={<PostShow />} />
             <Route path='/contact' element={<Contact />} />
           </Route>
         </Routes>
