@@ -24,7 +24,7 @@ export default function Blog() {
                 return resp.json();
             })
             .then((data) => {
-                console.log("%cDati totali ricevuti", "color: red; font-size: 16px;", data);
+                console.log("%cPOST TOTALI", "color: green; font-size: 16px;", data);
                 setPosts(data.data);
             })
             .catch((error) => {
@@ -34,11 +34,11 @@ export default function Blog() {
                 setLoading(false);
             });
     }
-    
+
     function showInfo(post) {
-        setLoading(true)
+        setLoading(true);
         setPostShow(post);
-        setLoading(false)
+        setLoading(false);
     }
 
 
@@ -47,7 +47,7 @@ export default function Blog() {
             {loading ? <Loading /> : (
                 <div>
                     <div className="flex flex-col gap-2">
-                        {posts.map((post, i) => (
+                        {posts.map((post) => (
                             <SinglePost
                                 key={post.id}
                                 post={post}
@@ -60,7 +60,8 @@ export default function Blog() {
                         <OffCanvas
                             text={isOffcanvasVisible ? 'Chiudi pannello' : 'Crea nuovo Post'}
                             isVisible={isOffcanvasVisible}
-                            toggleOffcanvas={() => { setOffcanvasVisible(!isOffcanvasVisible) }}
+                            toggleOffcanvas={() => { setOffcanvasVisible(!isOffcanvasVisible); }}
+                            updatePostList={getAllPosts}
                         />
                     </div>
                 </div>

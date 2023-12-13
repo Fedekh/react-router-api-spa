@@ -7,18 +7,20 @@ const initialState = {
     published: true,
     category: 'weewwewe',
     tags: []
-}
-const apiTags = 'http://localhost:1111/tag/'
-const apiCategorie = 'http://localhost:1111/category/'
-const apiPost = 'http://localhost:1111/post'
+};
 
-export default function OffCanvas({ isVisible, toggleOffcanvas, text }) {
+let isLoading = false;
+const apiTags = 'http://localhost:1111/tag/';
+const apiCategorie = 'http://localhost:1111/category/';
+const apiPost = 'http://localhost:1111/post';
+
+export default function OffCanvas({ isVisible, toggleOffcanvas, text, updatePostList }) {
     useEffect(getAllTags, []); //onMounted
     useEffect(getAllCategories, []); //onMounted
 
-    const [formData, setFormData] = useState(initialState)
-    const [tags, setTags] = useState([])
-    const [categories, setCategories] = useState([])
+    const [formData, setFormData] = useState(initialState);
+    const [tags, setTags] = useState([]);
+    const [categories, setCategories] = useState([]);
 
 
     function getAllTags() {
@@ -30,12 +32,12 @@ export default function OffCanvas({ isVisible, toggleOffcanvas, text }) {
                 return resp.json();
             })
             .then((data) => {
-                console.log("%cDati totali ricevuti", "color: red; font-size: 16px;", data);
+                console.log("%cTAGS TOTALI", "color: red; font-size: 16px;", data);
                 setTags(data.data);
             })
             .catch((error) => {
                 console.error("Errore nella richiesta:", error);
-            })
+            });
     }
 
     function getAllCategories() {
@@ -47,17 +49,16 @@ export default function OffCanvas({ isVisible, toggleOffcanvas, text }) {
                 return resp.json();
             })
             .then((data) => {
-                console.log("%cDati totali ricevuti", "color: red; font-size: 16px;", data);
+                console.log("%cCATEGORIE TOTALI", "color: orange; font-size: 16px;", data);
                 setCategories(data.data);
             })
             .catch((error) => {
                 console.error("Errore nella richiesta:", error);
-            })
+            });
     }
 
     function handleChange(e, key) {
         const value = e.target.value;
-
         if (key === 'tags') {
             let currentTags = [...formData.tags];
 
@@ -82,21 +83,28 @@ export default function OffCanvas({ isVisible, toggleOffcanvas, text }) {
 
     async function handleFormSubmit(e) {
         e.preventDefault();
+
         try {
+            const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsImVtYWlsIjoicHJvdmFAYS5pdCIsImlhdCI6MTcwMjQ5MzA5MywiZXhwIjoxNzM4NDkzMDkzfQ.AaAX8ILSAbAcTQNnGOQO9ZJDiQF_PwaXn8UgodtRyyk';
+            console.log('Bearer Token:', `Bearer ${token}`);
+
             const response = await fetch(apiPost, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
                 },
                 body: JSON.stringify(formData),
             });
-
             if (!response.ok) {
                 throw new Error(`Errore nella richiesta: ${response.status} ${response.statusText} `);
             }
 
             const responseData = await response.json();
             console.log('Dati ricevuti:', responseData);
+
+            toggleOffcanvas();
+            updatePostList();
 
             return responseData;
         } catch (error) {
@@ -120,7 +128,7 @@ export default function OffCanvas({ isVisible, toggleOffcanvas, text }) {
                     <h1 className="text-center text-4xl font-bold">Create a New Post</h1>
 
                     {/* Form Body */}
-                    <form onSubmit={(e) => { handleFormSubmit(e) }}
+                    <form onSubmit={(e) => { handleFormSubmit(e); }}
                         className="mx-auto mt-11 w-2/5 rounded-md border-2 border-gray-500 bg-green-800 p-5"
                     >
                         {/* Title */}

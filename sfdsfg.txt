@@ -1,0 +1,15 @@
+
+
+SQL 
+mysql
+phpmyadmin
+
+mariaDB
+postGre
+
+TSql
+sqlserver
+sqlserver managment
+
+
+mongoDB Non relazionale
