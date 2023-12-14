@@ -3,6 +3,7 @@ import SinglePost from "../components/SinglePost";
 import Loading from "../components/Loading";
 import OffCanvas from "../components/OffCanvas";
 import ToastMessage from "../components/ToastMessage";
+import Modal from "../components/Modal";
 
 const apiPost = `http://localhost:1111/post`;
 const token = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE2LCJlbWFpbCI6Im92ZXJAYS5pdCIsImlhdCI6MTcwMjU1MjE1NiwiZXhwIjo1MzAyNTUyMTU2fQ.9GtfwjfaOCrLpyeYggXVC4XGhXou6PTdpONdYvwjB80`;
@@ -10,7 +11,7 @@ const token = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE2LCJlbWFpbCI6
 export default function Blog() {
     useEffect(getAllPosts, []); //onMounted
 
-    
+
     const [posts, setPosts] = useState([]);
     const [postShow, setPostShow] = useState(null);
     const [postEdit, setPostEdit] = useState(null);
@@ -18,7 +19,9 @@ export default function Blog() {
     const [toastMessage, setToastMessage] = useState('')
     const [loading, setLoading] = useState(false);
     const [isOffcanvasVisible, setIsOffcanvasVisible] = useState(false);
-    
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [postToDelete, setPostToDelete] = useState(null);
+
     function resetToast() {
         if (toastMessage) {
             setTimeout(() => {
@@ -26,9 +29,25 @@ export default function Blog() {
             }, 3000);
         }
     }
+
     useEffect(() => { resetToast() }, [toastMessage]);
 
-    
+    function openModal(post) {
+        setPostToDelete(post);
+        setIsModalOpen(true);
+    }
+
+    function closeModal() {
+        setPostToDelete(null);
+        setIsModalOpen(false);
+    }
+
+    function showPost(post) {
+        setLoading(true);
+        setPostShow(post);
+        setLoading(false);
+    }
+
     function getAllPosts() {
         setLoading(true);
         fetch(apiPost)
@@ -50,11 +69,6 @@ export default function Blog() {
             });
     }
 
-    function showPost(post) {
-        setLoading(true);
-        setPostShow(post);
-        setLoading(false);
-    }
 
     function editPost(post) {
         setPostEdit(post)
@@ -97,7 +111,7 @@ export default function Blog() {
         <>
             {loading ? <Loading /> : (
                 <div className="blog" id="blog" onClick={chiudiOffCanvasDaPadre}>
-                 {toastMessage && postDelete && <ToastMessage crud='delete' resourceName={postDelete} color='red'/>}
+                    {toastMessage && postDelete && <ToastMessage crud='delete' resourceName={postDelete} color='red' />}
 
                     <div className={`flex flex-wrap gap-8 my-4 ${isOffcanvasVisible ? 'opacity-30' : ''}`}>
 
@@ -107,7 +121,7 @@ export default function Blog() {
                                 post={post}
                                 onShow={() => { showPost(post); }}
                                 onEdit={() => { editPost(post); }}
-                                onDelete={() => { deletePost(post); }}
+                                onDelete={() => openModal(post)}
                             />
                         ))}
                     </div>
@@ -120,6 +134,16 @@ export default function Blog() {
                             updatePostList={getAllPosts}
                         />
                     </div>
+
+                    <Modal
+                        resourceName={postToDelete ? postToDelete.title : ''}
+                        isOpen={isModalOpen}
+                        onClose={closeModal}
+                        onConfirm={() => {
+                            deletePost(postToDelete);
+                            closeModal();
+                        }}
+                    />
                 </div>
             )}
         </>

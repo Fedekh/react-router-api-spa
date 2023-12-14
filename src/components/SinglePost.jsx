@@ -4,24 +4,24 @@ export default function SinglePost({ post, onShow, onDelete, onEdit }) {
     const { id, title, content, category, tags, slug, image } = post;
 
     function getUrlImg() {
-        if (!image) return 'public/download.png'
+        return image.includes('fakepath') ? 'download.png' : 'https://thumbs.dreamstime.com/b/generic-person-gray-photo-placeholder-man-silhouette-white-background-144511705.jpg'
     }
 
     return (
-        <div class="max-w-xs rounded overflow-hidden shadow-lg bg-gray-700 text-white card-container">
+        <div className="max-w-xs rounded overflow-hidden shadow-lg bg-gray-700 text-white card-container">
 
-            <img class="w-full" src="../../public/download.png" alt="" />
-            <div class="p-4">
-                <h5 class="font-bold text-xl mb-2"><span class="text-red-600">Title:</span> {title}</h5>
-                <p class="text-gray-300 text-base my-4">
-                    <span class="text-pink-400">Descrizione:</span>{content ? content : 'Non disponibile'}
+            <img className="w-full" src={getUrlImg() } alt="" />
+            <div className="p-4">
+                <h5 className="font-bold text-xl mb-2"><span className="text-red-600">Title:</span> {title}</h5>
+                <p className="text-gray-300 text-base my-4">
+                    <span className="text-pink-400">Descrizione:</span>{content ? content : 'Non disponibile'}
                 </p>
-                <p class="text-gray-300 text-base">
-                    <span class="text-pink-400">Categoria:</span>{category?.title || 'Non disponibili'}
+                <p className="text-gray-300 text-base">
+                    <span className="text-pink-400">Categoria:</span>{category?.title || 'Non disponibili'}
                 </p>
             </div>
-            <div class="p-4">
-                <p class="text-pink-400 mb-3">Tags:</p>
+            <div className="p-4">
+                <p className="text-pink-400 mb-3">Tags:</p>
                 <div className='flex gap-3 flex-wrap' style={{ flexShrink: 0 }}>
                     {tags?.length ? tags.map((tag, i) => (
                         <span key={i} className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mb-2">{tag.title}</span>
