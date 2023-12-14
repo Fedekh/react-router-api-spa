@@ -9,7 +9,6 @@ const initialState = {
     tags: []
 };
 
-let isLoading = false;
 const apiTags = 'http://localhost:1111/tag/';
 const apiCategorie = 'http://localhost:1111/category/';
 const apiPost = 'http://localhost:1111/post';
@@ -103,8 +102,8 @@ export default function OffCanvas({ isVisible, toggleOffcanvas, text, updatePost
             const responseData = await response.json();
             console.log('Dati ricevuti:', responseData);
 
-            toggleOffcanvas();
-            updatePostList();
+            toggleOffcanvas(); //chiude modale tramite padre-props
+            updatePostList(); //ricarico lista tramite padre-props
 
             return responseData;
         } catch (error) {
@@ -120,7 +119,7 @@ export default function OffCanvas({ isVisible, toggleOffcanvas, text, updatePost
                 onClick={toggleOffcanvas}>{text}
             </button>
 
-            <div className={`fixed z-10 top-0 right-0 w-2/4 h-full bg-indigo-900 rounded-xl transition-transform ease-in-out transform ${isVisible ? 'translate-x-0' : 'translate-x-full'}`}>
+            <div id="offcanvas" className={`fixed z-10 top-0 right-0 w-2/4 h-full bg-slate-700 rounded-xl transition-transform ease-in-out transform ${isVisible ? 'translate-x-0' : 'translate-x-full'}`}>
                 <button className="fixed top-3 right-4 cursor-pointer" onClick={toggleOffcanvas}>
                     <i className="fa-solid fa-x"></i>
                 </button>

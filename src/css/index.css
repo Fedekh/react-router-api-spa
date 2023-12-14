@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-body{
+body {
     @apply bg-stone-800 text-white
+}
+
+.card-container {
+    width: 200px;
 }

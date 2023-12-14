@@ -11,7 +11,7 @@ export default function Blog() {
     const [posts, setPosts] = useState([]);
     const [postShow, setPostShow] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [isOffcanvasVisible, setOffcanvasVisible] = useState(false);
+    const [isOffcanvasVisible, setIsOffcanvasVisible] = useState(false);
 
 
     function getAllPosts() {
@@ -41,12 +41,22 @@ export default function Blog() {
         setLoading(false);
     }
 
+    function chiudiOffCanvasDaPadre(e) {
+        if (e.target.closest("#offcanvas")) {
+            return; 
+        }
+    
+        if (isOffcanvasVisible) {
+            setIsOffcanvasVisible(false);
+        }
+    }
 
     return (
         <>
             {loading ? <Loading /> : (
-                <div>
-                    <div className="flex flex-col gap-2">
+                <div className="blog" id="blog" onClick={chiudiOffCanvasDaPadre}>
+                   <div className={`flex flex-wrap gap-8 my-4 ${isOffcanvasVisible ? 'opacity-30' : ''}`}>
+ 
                         {posts.map((post) => (
                             <SinglePost
                                 key={post.id}
@@ -60,7 +70,7 @@ export default function Blog() {
                         <OffCanvas
                             text={isOffcanvasVisible ? 'Chiudi pannello' : 'Crea nuovo Post'}
                             isVisible={isOffcanvasVisible}
-                            toggleOffcanvas={() => { setOffcanvasVisible(!isOffcanvasVisible); }}
+                            toggleOffcanvas={() => {setIsOffcanvasVisible(!isOffcanvasVisible); }}
                             updatePostList={getAllPosts}
                         />
                     </div>
