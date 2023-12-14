@@ -21,7 +21,7 @@ export default function Moddal({ resourceName, isOpen, onClose, onConfirm }) {
                         aria-modal="true"
                         aria-labelledby="modal-headline"
                     >
-                        <div className="mb-6 text-lg font-semibold">Conferma l'azione</div>
+                        <div className="mb-6 text-red-500 text-lg font-semibold">Conferma eliminazione</div>
                         <p className=" mb-6">Sei sicuro di voler eliminare  <span className='text-red-600'>{resourceName}</span>?</p>
                         <div className="flex justify-end">
                             <button
