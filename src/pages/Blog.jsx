@@ -5,7 +5,7 @@ import OffCanvas from "../components/OffCanvas";
 import ToastMessage from "../components/ToastMessage";
 import Modal from "../components/Modal";
 
-const apiPost = `http://localhost:1111/post`;
+const apiPost = `http://localhost:1111/post/`;
 const token = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE2LCJlbWFpbCI6Im92ZXJAYS5pdCIsImlhdCI6MTcwMjU1MjE1NiwiZXhwIjo1MzAyNTUyMTU2fQ.9GtfwjfaOCrLpyeYggXVC4XGhXou6PTdpONdYvwjB80`;
 
 export default function Blog() {
@@ -13,9 +13,9 @@ export default function Blog() {
 
 
     const [posts, setPosts] = useState([]);
-    const [postShow, setPostShow] = useState(null);
-    const [postEdit, setPostEdit] = useState(null);
-    const [postDelete, setPostDelete] = useState(null);
+    const [postShow, setPostShow] = useState([]); //per fare show detail
+    const [postEdit, setPostEdit] = useState([]); // per edit mode
+    const [postDelete, setPostDelete] = useState([]); //per delete
     const [toastMessage, setToastMessage] = useState('')
     const [loading, setLoading] = useState(false);
     const [isOffcanvasVisible, setIsOffcanvasVisible] = useState(false);
@@ -69,10 +69,18 @@ export default function Blog() {
             });
     }
 
-
-    function editPost(post) {
-        setPostEdit(post)
+    async function editPost(post) {
+        try {
+            const postData = await (await fetch(apiPost + post.slug)).json();
+            setPostEdit(postData);
+    
+            setIsOffcanvasVisible(true);
+        } catch (error) {
+            console.error("Si è verificato un errore durante l'editing del post:", error);
+        }
     }
+    
+
 
     function deletePost(post) {
         fetch(`${apiPost}/${post.slug}`, {
@@ -114,13 +122,12 @@ export default function Blog() {
                     {toastMessage && postDelete && <ToastMessage crud='delete' resourceName={postDelete} color='red' />}
 
                     <div className={`flex flex-wrap gap-8 my-4 ${isOffcanvasVisible ? 'opacity-30' : ''}`}>
-
                         {posts.map((post) => (
                             <SinglePost
                                 key={post.id}
                                 post={post}
-                                onShow={() => { showPost(post); }}
-                                onEdit={() => { editPost(post); }}
+                                onShow={() => showPost(post)}
+                                onEdit={() => editPost(post)}
                                 onDelete={() => openModal(post)}
                             />
                         ))}
@@ -130,8 +137,9 @@ export default function Blog() {
                         <OffCanvas
                             text={isOffcanvasVisible ? 'Chiudi pannello' : 'Crea nuovo Post'}
                             isVisible={isOffcanvasVisible}
-                            toggleOffcanvas={() => { setIsOffcanvasVisible(!isOffcanvasVisible); }}
+                            toggleOffcanvas={() => setIsOffcanvasVisible(!isOffcanvasVisible)}
                             updatePostList={getAllPosts}
+                            editPost={postEdit}
                         />
                     </div>
 

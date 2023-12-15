@@ -5,7 +5,7 @@ const initialState = {
     image: "",
     content: "",
     published: true,
-    category: 'weewwewe',
+    category: '',
     tags: []
 };
 
@@ -13,13 +13,30 @@ const apiTags = 'http://localhost:1111/tag/';
 const apiCategorie = 'http://localhost:1111/category/';
 const apiPost = 'http://localhost:1111/post';
 
-export default function OffCanvas({ isVisible, toggleOffcanvas, text, updatePostList }) {
-    useEffect(getAllTags, []); //onMounted
-    useEffect(getAllCategories, []); //onMounted
+export default function OffCanvas({ isVisible, toggleOffcanvas, text, updatePostList, editPost }) {
+    
+    useEffect(() => {
+        getAllTags();
+        getAllCategories();
+    }, []); // onMounted
+
+    useEffect(() => {
+        getAllTags();
+        getAllCategories();
+        if (editPost) {
+            setFormData(editPost);
+        }
+    }, [editPost]);
+
+    useEffect(() => {
+        if (!isVisible)
+            setFormData(initialState)
+    }, [isVisible]);
 
     const [formData, setFormData] = useState(initialState);
     const [tags, setTags] = useState([]);
     const [categories, setCategories] = useState([]);
+
 
 
     function getAllTags() {
@@ -31,7 +48,7 @@ export default function OffCanvas({ isVisible, toggleOffcanvas, text, updatePost
                 return resp.json();
             })
             .then((data) => {
-                console.log("%cTAGS TOTALI", "color: red; font-size: 16px;", data);
+                // console.log("%cTAGS TOTALI", "color: red; font-size: 16px;", data);
                 setTags(data.data);
             })
             .catch((error) => {
@@ -48,7 +65,7 @@ export default function OffCanvas({ isVisible, toggleOffcanvas, text, updatePost
                 return resp.json();
             })
             .then((data) => {
-                console.log("%cCATEGORIE TOTALI", "color: orange; font-size: 16px;", data);
+                // console.log("%cCATEGORIE TOTALI", "color: orange; font-size: 16px;", data);
                 setCategories(data.data);
             })
             .catch((error) => {
@@ -58,7 +75,16 @@ export default function OffCanvas({ isVisible, toggleOffcanvas, text, updatePost
 
     function handleChange(e, key) {
         const value = e.target.value;
-        if (key === 'tags') {
+
+        if (e.target.type === 'file') {
+            const file = e.target.files[0];
+
+            setFormData(prev => ({
+                ...prev,
+                image: file,
+            }));
+
+        } else if (key === 'tags') {
             let currentTags = [...formData.tags];
 
             if (e.target.checked) {
@@ -71,6 +97,7 @@ export default function OffCanvas({ isVisible, toggleOffcanvas, text, updatePost
                 ...prev,
                 tags: currentTags,
             }));
+
         } else {
             setFormData(prev => ({
                 ...prev,
@@ -80,20 +107,29 @@ export default function OffCanvas({ isVisible, toggleOffcanvas, text, updatePost
     }
 
 
+
     async function handleFormSubmit(e) {
         e.preventDefault();
+
+        const formDataToSend = new FormData() //oggetto speciale tipo formdata per upoload file
 
         try {
             const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsImVtYWlsIjoicHJvdmFAYS5pdCIsImlhdCI6MTcwMjQ5MzA5MywiZXhwIjoxNzM4NDkzMDkzfQ.AaAX8ILSAbAcTQNnGOQO9ZJDiQF_PwaXn8UgodtRyyk';
             console.log('Bearer Token:', `Bearer ${token}`);
 
+            //array di tutte le key dell oggetto
+            Object.keys(formData).forEach((e) => {
+                formDataToSend.append(e, formData[e])
+            })
+
             const response = await fetch(apiPost, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'multipart/form-data',
                     'Authorization': `Bearer ${token}`,
                 },
-                body: JSON.stringify(formData),
+                // body: JSON.stringify(formData),
+                body: formDataToSend
             });
             if (!response.ok) {
                 throw new Error(`Errore nella richiesta: ${response.status} ${response.statusText} `);
@@ -103,7 +139,7 @@ export default function OffCanvas({ isVisible, toggleOffcanvas, text, updatePost
             console.log('Dati ricevuti:', responseData);
 
             toggleOffcanvas(); //chiude modale tramite padre-props
-            updatePostList(); //ricarico lista tramite padre-props
+            updatePostList, editPost(); //ricarico lista tramite padre-props
 
             return responseData;
         } catch (error) {
@@ -111,6 +147,13 @@ export default function OffCanvas({ isVisible, toggleOffcanvas, text, updatePost
         }
     }
 
+    function onReset() {
+        setFormData(initialState)
+    }
+
+    function resetImg() {
+        setFormData({ ...formData, image: '' });
+    }
 
     return (
         <>
@@ -171,21 +214,35 @@ export default function OffCanvas({ isVisible, toggleOffcanvas, text, updatePost
 
                         {/* Image */}
                         <div className="mb-5">
-                            <label
-                                htmlFor="image"
-                                className="mb-2 block text-sm font-medium  dark:text-gray-900 text-white"
-                            >
-                                Image (URL)
+                            <label htmlFor="image" className="mb-2 block text-sm font-medium">
+                                Image
                             </label>
-                            <input
-                                onChange={(e) => handleChange(e, "image")}
-                                value={formData.image}
-                                type="file"
-                                id="image"
-                                name="image"
-                                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                                placeholder="Insert the URL of the image"
-                            />
+                            <div className="mt-1 flex items-center">
+                                <label htmlFor="image" className="relative cursor-pointer bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500 p-2.5">
+                                    <span>Carica file</span>
+                                    <input
+                                        id="image"
+                                        name="image"
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => handleChange(e, "image")}
+                                        className="sr-only"
+                                    />
+                                </label>
+                                <span className="ml-2 text-gray-300 dark:text-gray-400">{!formData.image && 'Nessun file scelto'}</span>
+                            </div>
+
+                            {/* preview */}
+                            <div className="relative my-3">
+                                {formData.image && (
+                                    <>
+                                        <img src={`${typeof formData.image === 'string' ? formData.image : URL.createObjectURL(formData.image)}`} alt="" />
+                                        <div className="absolute top-0 right-0 p-1 bg-red-500 text-white cursor-pointer" onClick={resetImg}>
+                                            <i className="fas fa-times"></i>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
                         </div>
 
                         {/* Categories */}
@@ -270,14 +327,15 @@ export default function OffCanvas({ isVisible, toggleOffcanvas, text, updatePost
                             </button>
 
                             <button
+                                onClick={onReset}
                                 type="reset"
                                 className="focus:outline-none mx-4 text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">
                                 Reset
                             </button>
                         </div>
                     </form>
-                </div>
-            </div>
+                </div >
+            </div >
         </>
     );
 }

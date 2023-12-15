@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 
 export default function SinglePost({ post, onShow, onDelete, onEdit }) {
     const { id, title, content, category, tags, slug, image } = post;
+console.log(image)
 
     function getUrlImg() {
         return image.includes('fakepath') ? 'download.png' : 'https://thumbs.dreamstime.com/b/generic-person-gray-photo-placeholder-man-silhouette-white-background-144511705.jpg'
@@ -10,7 +11,7 @@ export default function SinglePost({ post, onShow, onDelete, onEdit }) {
     return (
         <div className="max-w-xs rounded overflow-hidden shadow-lg bg-gray-700 text-white card-container">
 
-            <img className="w-full" src={getUrlImg() } alt="" />
+            <img className="w-full" src={getUrlImg()} alt="" />
             <div className="p-4">
                 <h5 className="font-bold text-xl mb-2"><span className="text-red-600">Title:</span> {title}</h5>
                 <p className="text-gray-300 text-base my-4">
@@ -40,7 +41,7 @@ export default function SinglePost({ post, onShow, onDelete, onEdit }) {
                     </div>
                 }
                 <button
-                    onClick={onEdit}
+                    onClick={() => onEdit(slug)}
                     className="my-6 rounded-lg bg-yellow-500 px-5 py-2.5 
                     text-center text-sm font-medium text-white hover:bg-yellow-800 focus:outline-none 
                     focus:ring-4 focus:ring-${color}-300">
