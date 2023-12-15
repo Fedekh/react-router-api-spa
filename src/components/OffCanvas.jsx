@@ -106,46 +106,60 @@ export default function OffCanvas({ isVisible, toggleOffcanvas, text, updatePost
         }
     }
 
-
-
     async function handleFormSubmit(e) {
-        e.preventDefault();
+    e.preventDefault();
 
-        const formDataToSend = new FormData() //oggetto speciale tipo formdata per upoload file
+    const formDataToSend = new FormData();
 
-        try {
-            const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsImVtYWlsIjoicHJvdmFAYS5pdCIsImlhdCI6MTcwMjQ5MzA5MywiZXhwIjoxNzM4NDkzMDkzfQ.AaAX8ILSAbAcTQNnGOQO9ZJDiQF_PwaXn8UgodtRyyk';
-            console.log('Bearer Token:', `Bearer ${token}`);
+    try {
+        const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsImVtYWlsIjoicHJvdmFAYS5pdCIsImlhdCI6MTcwMjQ5MzA5MywiZXhwIjoxNzM4NDkzMDkzfQ.AaAX8ILSAbAcTQNnGOQO9ZJDiQF_PwaXn8UgodtRyyk';
+        console.log('Bearer Token:', `Bearer ${token}`);
 
-            //array di tutte le key dell oggetto
-            Object.keys(formData).forEach((e) => {
-                formDataToSend.append(e, formData[e])
-            })
+        // Utilizziamo uno stato temporaneo per garantire che il setFormData sia sincrono
+        let tempFormData = { ...formData };
 
-            const response = await fetch(apiPost, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${token}`,
-                },
-                // body: JSON.stringify(formData),
-                body: formDataToSend
-            });
-            if (!response.ok) {
-                throw new Error(`Errore nella richiesta: ${response.status} ${response.statusText} `);
+        Object.keys(tempFormData).forEach((key) => {
+            const value = tempFormData[key];
+
+            if (value instanceof FileList) {
+                // Se è un campo di tipo file, aggiungi tutti i file
+                for (let i = 0; i < value.length; i++) {
+                    formDataToSend.append(key, value[i]);
+                }
+            } else {
+                // Altrimenti, aggiungi tutti i valori
+                formDataToSend.append(key, value);
             }
+        });
 
-            const responseData = await response.json();
-            console.log('Dati ricevuti:', responseData);
+        console.log(formDataToSend);
 
-            toggleOffcanvas(); //chiude modale tramite padre-props
-            updatePostList, editPost(); //ricarico lista tramite padre-props
+        const response = await fetch(apiPost, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+            body: formDataToSend
+        });
 
-            return responseData;
-        } catch (error) {
-            console.error('Errore nella richiesta:', error);
+        if (!response.ok) {
+            throw new Error(`Errore nella richiesta: ${response.status} ${response.statusText} `);
         }
+
+        const responseData = await response.json();
+        console.log('Dati ricevuti:', responseData);
+
+        toggleOffcanvas();
+        updatePostList();
+        editPost();
+
+        return responseData;
+    } catch (error) {
+        console.error('Errore nella richiesta:', error);
     }
+}
+
+
 
     function onReset() {
         setFormData(initialState)
